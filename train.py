@@ -18,7 +18,7 @@ def _fmt_lr(lr: float) -> str:
 @dataclass
 class TrainConfig:
     # ── Data ──────────────────────────────────────────────────────────────
-    path: str = "data/input.txt"
+    path: str = "data/jokes_de.txt"
     
     # ── Model ──────────────────────────────────────────────────────────────
     embedding_dim: int = 64             # size of all internal representations
