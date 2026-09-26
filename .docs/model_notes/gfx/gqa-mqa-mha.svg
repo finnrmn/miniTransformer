@@ -1,0 +1,163 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 860 600" role="img" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">
+<title>Multi-Head, Grouped-Query und Multi-Query Attention im Vergleich, dazu der Uptraining-Ablauf</title>
+<desc>Alle drei Varianten haben acht Query-Heads. MHA hat acht Key-Value-Heads, GQA vier, MQA einen einzigen. Darunter der Ablauf vom MHA-Checkpoint über Mittelung zu einem GQA-Modell.</desc>
+
+<style>
+  .bg   { fill: #ffffff; }
+  .hd   { fill: #2C2C2A; font-size: 17px; font-weight: 500; }
+  .hds  { fill: #5F5E5A; font-size: 13px; }
+  .col  { fill: #2C2C2A; font-size: 15px; font-weight: 500; }
+  .cols { fill: #5F5E5A; font-size: 12px; }
+  .lab  { fill: #5F5E5A; font-size: 13px; }
+  .note { fill: #2C2C2A; font-size: 13px; }
+  .cont { fill: #F1EFE8; stroke: #888780; stroke-width: 0.5; }
+  .q    { fill: #9FE1CB; stroke: #0F6E56; stroke-width: 0.5; }
+  .kv   { fill: #FAC775; stroke: #854F0B; stroke-width: 0.5; }
+  .kvt  { fill: #412402; font-size: 12px; font-weight: 500; }
+  .link { stroke: #888780; stroke-width: 1; fill: none; }
+  .pb   { fill: #CECBF6; stroke: #534AB7; stroke-width: 0.5; }
+  .pt   { fill: #26215C; font-size: 14px; font-weight: 500; }
+  .ps   { fill: #534AB7; font-size: 12px; }
+  .arr  { stroke: #888780; stroke-width: 1.5; fill: none; }
+  @media (prefers-color-scheme: dark) {
+    .bg   { fill: #1a1a19; }
+    .hd, .col, .note { fill: #E8E6DE; }
+    .hds, .cols, .lab { fill: #B4B2A9; }
+    .cont { fill: #232322; stroke: #B4B2A9; }
+    .q    { fill: #085041; stroke: #5DCAA5; }
+    .kv   { fill: #633806; stroke: #EF9F27; }
+    .kvt  { fill: #FAEEDA; }
+    .link, .arr { stroke: #9C9A92; }
+    .pb   { fill: #3C3489; stroke: #AFA9EC; }
+    .pt   { fill: #EEEDFE; } .ps { fill: #CECBF6; }
+  }
+</style>
+
+<defs>
+<marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+<path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+</defs>
+
+<rect class="bg" x="0" y="0" width="860" height="600"/>
+
+<text class="hd" x="20" y="42">Alle drei haben 8 Query-Heads — der Unterschied liegt bei Keys und Values</text>
+<text class="hds" x="20" y="64">Weniger Key/Value-Heads bedeutet kleinerer KV-Cache und damit weniger Daten pro Decoding-Schritt</text>
+
+<rect class="cont" x="20" y="82" width="820" height="262" rx="16"/>
+
+<text class="lab" x="115" y="167" text-anchor="end">Query-Heads</text>
+<text class="lab" x="115" y="257" text-anchor="end">Key/Value-Heads</text>
+
+<text class="col" x="240" y="112" text-anchor="middle">MHA</text>
+<text class="cols" x="240" y="132" text-anchor="middle">8 KV-Heads</text>
+<text class="col" x="485" y="112" text-anchor="middle">GQA-4</text>
+<text class="cols" x="485" y="132" text-anchor="middle">4 KV-Heads</text>
+<text class="col" x="730" y="112" text-anchor="middle">MQA</text>
+<text class="cols" x="730" y="132" text-anchor="middle">1 KV-Head</text>
+
+<!-- MHA query heads -->
+<rect class="q" x="142" y="145" width="20" height="34" rx="4"/>
+<rect class="q" x="167" y="145" width="20" height="34" rx="4"/>
+<rect class="q" x="192" y="145" width="20" height="34" rx="4"/>
+<rect class="q" x="217" y="145" width="20" height="34" rx="4"/>
+<rect class="q" x="242" y="145" width="20" height="34" rx="4"/>
+<rect class="q" x="267" y="145" width="20" height="34" rx="4"/>
+<rect class="q" x="292" y="145" width="20" height="34" rx="4"/>
+<rect class="q" x="317" y="145" width="20" height="34" rx="4"/>
+<!-- MHA kv heads -->
+<rect class="kv" x="142" y="235" width="20" height="34" rx="4"/>
+<rect class="kv" x="167" y="235" width="20" height="34" rx="4"/>
+<rect class="kv" x="192" y="235" width="20" height="34" rx="4"/>
+<rect class="kv" x="217" y="235" width="20" height="34" rx="4"/>
+<rect class="kv" x="242" y="235" width="20" height="34" rx="4"/>
+<rect class="kv" x="267" y="235" width="20" height="34" rx="4"/>
+<rect class="kv" x="292" y="235" width="20" height="34" rx="4"/>
+<rect class="kv" x="317" y="235" width="20" height="34" rx="4"/>
+<line class="link" x1="152" y1="179" x2="152" y2="235"/>
+<line class="link" x1="177" y1="179" x2="177" y2="235"/>
+<line class="link" x1="202" y1="179" x2="202" y2="235"/>
+<line class="link" x1="227" y1="179" x2="227" y2="235"/>
+<line class="link" x1="252" y1="179" x2="252" y2="235"/>
+<line class="link" x1="277" y1="179" x2="277" y2="235"/>
+<line class="link" x1="302" y1="179" x2="302" y2="235"/>
+<line class="link" x1="327" y1="179" x2="327" y2="235"/>
+
+<!-- GQA query heads -->
+<rect class="q" x="387" y="145" width="20" height="34" rx="4"/>
+<rect class="q" x="412" y="145" width="20" height="34" rx="4"/>
+<rect class="q" x="437" y="145" width="20" height="34" rx="4"/>
+<rect class="q" x="462" y="145" width="20" height="34" rx="4"/>
+<rect class="q" x="487" y="145" width="20" height="34" rx="4"/>
+<rect class="q" x="512" y="145" width="20" height="34" rx="4"/>
+<rect class="q" x="537" y="145" width="20" height="34" rx="4"/>
+<rect class="q" x="562" y="145" width="20" height="34" rx="4"/>
+<!-- GQA kv heads -->
+<rect class="kv" x="387" y="235" width="45" height="34" rx="4"/>
+<rect class="kv" x="437" y="235" width="45" height="34" rx="4"/>
+<rect class="kv" x="487" y="235" width="45" height="34" rx="4"/>
+<rect class="kv" x="537" y="235" width="45" height="34" rx="4"/>
+<path class="link" d="M397 179 L397 207 L409 207 L409 235"/>
+<path class="link" d="M422 179 L422 207 L409 207 L409 235"/>
+<path class="link" d="M447 179 L447 207 L459 207 L459 235"/>
+<path class="link" d="M472 179 L472 207 L459 207 L459 235"/>
+<path class="link" d="M497 179 L497 207 L509 207 L509 235"/>
+<path class="link" d="M522 179 L522 207 L509 207 L509 235"/>
+<path class="link" d="M547 179 L547 207 L559 207 L559 235"/>
+<path class="link" d="M572 179 L572 207 L559 207 L559 235"/>
+
+<!-- MQA query heads -->
+<rect class="q" x="632" y="145" width="20" height="34" rx="4"/>
+<rect class="q" x="657" y="145" width="20" height="34" rx="4"/>
+<rect class="q" x="682" y="145" width="20" height="34" rx="4"/>
+<rect class="q" x="707" y="145" width="20" height="34" rx="4"/>
+<rect class="q" x="732" y="145" width="20" height="34" rx="4"/>
+<rect class="q" x="757" y="145" width="20" height="34" rx="4"/>
+<rect class="q" x="782" y="145" width="20" height="34" rx="4"/>
+<rect class="q" x="807" y="145" width="20" height="34" rx="4"/>
+<!-- MQA kv head -->
+<rect class="kv" x="632" y="235" width="195" height="34" rx="4"/>
+<text class="kvt" x="729" y="257" text-anchor="middle">ein einziger geteilter Head</text>
+<path class="link" d="M642 179 L642 207 L729 207 L729 235"/>
+<path class="link" d="M667 179 L667 207 L729 207"/>
+<path class="link" d="M692 179 L692 207 L729 207"/>
+<path class="link" d="M717 179 L717 207 L729 207"/>
+<path class="link" d="M742 179 L742 207 L729 207"/>
+<path class="link" d="M767 179 L767 207 L729 207"/>
+<path class="link" d="M792 179 L792 207 L729 207"/>
+<path class="link" d="M817 179 L817 207 L729 207"/>
+
+<text class="note" x="240" y="300" text-anchor="middle">KV-Cache: 8 Einheiten</text>
+<text class="cols" x="240" y="322" text-anchor="middle">beste Qualität, langsamste Inferenz</text>
+<text class="note" x="485" y="300" text-anchor="middle">KV-Cache: 4 Einheiten</text>
+<text class="cols" x="485" y="322" text-anchor="middle">fast MHA-Qualität, fast MQA-Tempo</text>
+<text class="note" x="730" y="300" text-anchor="middle">KV-Cache: 1 Einheit</text>
+<text class="cols" x="730" y="322" text-anchor="middle">schnellste Inferenz, Qualität sinkt</text>
+
+<rect class="cont" x="20" y="376" width="820" height="196" rx="16"/>
+<text class="hd" x="44" y="408">Uptraining — kein Training von Grund auf</text>
+
+<rect class="pb" x="44" y="432" width="175" height="60" rx="8"/>
+<text class="pt" x="131" y="458" text-anchor="middle">MHA-Checkpoint</text>
+<text class="ps" x="131" y="478" text-anchor="middle">bereits fertig trainiert</text>
+
+<rect class="pb" x="249" y="432" width="175" height="60" rx="8"/>
+<text class="pt" x="336" y="458" text-anchor="middle">K/V-Heads mitteln</text>
+<text class="ps" x="336" y="478" text-anchor="middle">mean pooling</text>
+
+<rect class="pb" x="454" y="432" width="175" height="60" rx="8"/>
+<text class="pt" x="541" y="458" text-anchor="middle">5 % Nachtraining</text>
+<text class="ps" x="541" y="478" text-anchor="middle">α = 0,05</text>
+
+<rect class="pb" x="659" y="432" width="175" height="60" rx="8"/>
+<text class="pt" x="746" y="458" text-anchor="middle">GQA-Modell</text>
+<text class="ps" x="746" y="478" text-anchor="middle">schnell und genau</text>
+
+<line class="arr" x1="221" y1="462" x2="245" y2="462" marker-end="url(#a)"/>
+<line class="arr" x1="426" y1="462" x2="450" y2="462" marker-end="url(#a)"/>
+<line class="arr" x1="631" y1="462" x2="655" y2="462" marker-end="url(#a)"/>
+
+<text class="note" x="430" y="528" text-anchor="middle">Mitteln schlägt „ersten Head nehmen" schlägt „zufällig neu initialisieren"</text>
+<text class="cols" x="430" y="552" text-anchor="middle">GQA ist schon direkt nach der Umwandlung brauchbar — MQA braucht das Nachtraining zwingend</text>
+
+</svg>

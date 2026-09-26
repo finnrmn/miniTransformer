@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 860 790" role="img" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">
+<title>FlashAttention gegen Standard-Attention: Speicherhierarchie und Datenfluss</title>
+<desc>Links die GPU-Speicherhierarchie mit SRAM, HBM und CPU-DRAM. Rechts oben die drei Runden der Standard-Attention über den HBM. Unten FlashAttention, das die Daten nur einmal lädt und nur das Ergebnis zurückschreibt.</desc>
+
+<style>
+  .bg   { fill: #ffffff; }
+  .hd   { fill: #2C2C2A; font-size: 16px; font-weight: 500; }
+  .note { fill: #5F5E5A; font-size: 12px; }
+  .t    { fill: #2C2C2A; font-size: 13px; }
+  .cont { fill: #F1EFE8; stroke: #888780; stroke-width: 0.5; }
+  .sram { fill: #9FE1CB; stroke: #0F6E56; stroke-width: 0.5; }
+  .sramt{ fill: #04342C; font-size: 14px; font-weight: 500; }
+  .srams{ fill: #0F6E56; font-size: 12px; }
+  .hbm  { fill: #FAC775; stroke: #854F0B; stroke-width: 0.5; }
+  .hbmt { fill: #412402; font-size: 14px; font-weight: 500; }
+  .hbms { fill: #854F0B; font-size: 12px; }
+  .dram { fill: #E4E2DA; stroke: #5F5E5A; stroke-width: 0.5; }
+  .dramt{ fill: #2C2C2A; font-size: 14px; font-weight: 500; }
+  .drams{ fill: #5F5E5A; font-size: 12px; }
+  .arr  { stroke: #888780; stroke-width: 1.5; fill: none; }
+  .rd   { stroke: #534AB7; stroke-width: 2; fill: none; }
+  .wr   { stroke: #854F0B; stroke-width: 2; fill: none; }
+  .step { fill: #2C2C2A; font-size: 12px; }
+  @media (prefers-color-scheme: dark) {
+    .bg   { fill: #1a1a19; }
+    .hd, .t, .step { fill: #E8E6DE; }
+    .note { fill: #B4B2A9; }
+    .cont { fill: #232322; stroke: #B4B2A9; }
+    .sram { fill: #085041; stroke: #5DCAA5; }
+    .sramt{ fill: #E1F5EE; } .srams { fill: #9FE1CB; }
+    .hbm  { fill: #633806; stroke: #EF9F27; }
+    .hbmt { fill: #FAEEDA; } .hbms { fill: #FAC775; }
+    .dram { fill: #3A3A37; stroke: #B4B2A9; }
+    .dramt{ fill: #E8E6DE; } .drams { fill: #B4B2A9; }
+    .arr  { stroke: #9C9A92; }
+    .rd   { stroke: #AFA9EC; }
+    .wr   { stroke: #EF9F27; }
+  }
+</style>
+
+<defs>
+<marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+<path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+</defs>
+
+<rect class="bg" x="0" y="0" width="860" height="790"/>
+
+<text class="hd" x="20" y="42">Der Engpass ist nicht das Rechnen, sondern der Weg zwischen den Speichern</text>
+
+<!-- PANEL A: memory hierarchy -->
+<rect class="cont" x="20" y="70" width="250" height="352" rx="16"/>
+<text class="hd" x="44" y="100">GPU-Speicher</text>
+
+<rect class="sram" x="110" y="125" width="110" height="58" rx="8"/>
+<text class="sramt" x="165" y="150" text-anchor="middle">SRAM</text>
+<text class="srams" x="165" y="170" text-anchor="middle">19 TB/s · 20 MB</text>
+
+<rect class="hbm" x="80" y="205" width="170" height="68" rx="8"/>
+<text class="hbmt" x="165" y="235" text-anchor="middle">HBM</text>
+<text class="hbms" x="165" y="256" text-anchor="middle">1,5 TB/s · 40 GB</text>
+
+<rect class="dram" x="44" y="295" width="206" height="80" rx="8"/>
+<text class="dramt" x="147" y="328" text-anchor="middle">CPU-DRAM</text>
+<text class="drams" x="147" y="349" text-anchor="middle">12,8 GB/s · über 1 TB</text>
+
+<text class="note" x="147" y="400" text-anchor="middle">nach unten: größer und langsamer</text>
+
+<!-- PANEL B: standard attention -->
+<rect class="cont" x="290" y="70" width="550" height="352" rx="16"/>
+<text class="hd" x="314" y="100">Standard-Attention — drei Runden</text>
+
+<rect class="hbm" x="314" y="118" width="502" height="46" rx="8"/>
+<text class="hbmt" x="565" y="146" text-anchor="middle">HBM — hier liegen Q, K, V und die volle N×N-Matrix</text>
+
+<rect class="sram" x="314" y="330" width="502" height="46" rx="8"/>
+<text class="sramt" x="565" y="358" text-anchor="middle">Recheneinheit auf dem Chip</text>
+
+<line class="rd" x1="348" y1="168" x2="348" y2="322" marker-end="url(#a)"/>
+<line class="wr" x1="452" y1="322" x2="452" y2="168" marker-end="url(#a)"/>
+<text class="step" x="400" y="220" text-anchor="middle">① Q, K rein</text>
+<text class="step" x="400" y="242" text-anchor="middle">S = QKᵀ</text>
+<text class="step" x="400" y="272" text-anchor="middle">S raus</text>
+<text class="note" x="400" y="292" text-anchor="middle">N×N</text>
+
+<line class="rd" x1="513" y1="168" x2="513" y2="322" marker-end="url(#a)"/>
+<line class="wr" x1="617" y1="322" x2="617" y2="168" marker-end="url(#a)"/>
+<text class="step" x="565" y="220" text-anchor="middle">② S rein</text>
+<text class="step" x="565" y="242" text-anchor="middle">P = softmax(S)</text>
+<text class="step" x="565" y="272" text-anchor="middle">P raus</text>
+<text class="note" x="565" y="292" text-anchor="middle">N×N</text>
+
+<line class="rd" x1="678" y1="168" x2="678" y2="322" marker-end="url(#a)"/>
+<line class="wr" x1="782" y1="322" x2="782" y2="168" marker-end="url(#a)"/>
+<text class="step" x="730" y="220" text-anchor="middle">③ P, V rein</text>
+<text class="step" x="730" y="242" text-anchor="middle">O = PV</text>
+<text class="step" x="730" y="272" text-anchor="middle">O raus</text>
+<text class="note" x="730" y="292" text-anchor="middle">N×d</text>
+
+<text class="note" x="565" y="404" text-anchor="middle">Die riesige N×N-Matrix wird zweimal geschrieben und zweimal gelesen</text>
+
+<!-- PANEL C: FlashAttention -->
+<rect class="cont" x="20" y="442" width="820" height="326" rx="16"/>
+<text class="hd" x="44" y="472">FlashAttention — einmal rein, einmal raus</text>
+
+<rect class="hbm" x="44" y="490" width="772" height="46" rx="8"/>
+<text class="hbmt" x="430" y="518" text-anchor="middle">HBM — hier liegen nur Q, K, V und am Ende O</text>
+
+<path class="rd" d="M140 540 L140 652 L192 652" marker-end="url(#a)"/>
+<text class="step" x="60" y="578">Blöcke laden</text>
+<text class="note" x="60" y="597">K_j, V_j, Q_i</text>
+
+<path class="wr" d="M672 652 L724 652 L724 540" marker-end="url(#a)"/>
+<text class="step" x="800" y="578" text-anchor="end">nur zurück:</text>
+<text class="note" x="800" y="597" text-anchor="end">O sowie m und ℓ</text>
+
+<text class="sramt" x="430" y="588" text-anchor="middle">SRAM — alles bleibt auf dem Chip</text>
+
+<rect class="sram" x="196" y="600" width="476" height="110" rx="10"/>
+<text class="srams" x="434" y="626" text-anchor="middle">S_ij = Q_i K_jᵀ  →  Zeilen-Maximum  →  exp</text>
+<text class="srams" x="434" y="649" text-anchor="middle">laufendes Maximum m und laufende Summe ℓ fortschreiben</text>
+<text class="srams" x="434" y="672" text-anchor="middle">bisheriges O_i mit Korrekturfaktor neu skalieren</text>
+<text class="srams" x="434" y="695" text-anchor="middle">äußere Schleife über K/V-Blöcke, innere über Q-Blöcke</text>
+
+<text class="note" x="430" y="740" text-anchor="middle">Die N×N-Matrix entsteht nie vollständig — nur Kacheln davon, jeweils für einen Moment im SRAM</text>
+<text class="note" x="430" y="758" text-anchor="middle">Ein einziger fusionierter CUDA-Kernel statt vier getrennter Operationen</text>
+
+</svg>

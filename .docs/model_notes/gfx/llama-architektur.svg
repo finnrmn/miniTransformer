@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 880 810" role="img" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">
+<title>LLaMA-Architektur: Gesamtmodell und Transformer-Block im Detail</title>
+<desc>Links der Gesamtstack von Tokens bis Softmax, rechts der einzelne Transformer-Block mit Pre-Normalization, RoPE-Attention, SwiGLU-Feedforward und zwei Residualverbindungen.</desc>
+
+<style>
+  .bg   { fill: #ffffff; }
+  .hd   { fill: #2C2C2A; font-size: 16px; font-weight: 500; }
+  .hds  { fill: #5F5E5A; font-size: 12px; }
+  .an   { fill: #5F5E5A; font-size: 12px; }
+  .arr  { stroke: #888780; stroke-width: 1.5; fill: none; }
+  .skip { stroke: #854F0B; stroke-width: 1.5; fill: none; stroke-dasharray: 5 4; }
+  .tb   { fill: #9FE1CB; stroke: #0F6E56; stroke-width: 0.5; }
+  .tt   { fill: #04342C; font-size: 14px; font-weight: 500; }
+  .ts   { fill: #0F6E56; font-size: 12px; }
+  .pb   { fill: #CECBF6; stroke: #534AB7; stroke-width: 0.5; }
+  .pt   { fill: #26215C; font-size: 14px; font-weight: 500; }
+  .ps   { fill: #534AB7; font-size: 12px; }
+  .ab   { fill: #FAC775; stroke: #854F0B; stroke-width: 0.5; }
+  .at   { fill: #412402; font-size: 14px; font-weight: 500; }
+  .as   { fill: #854F0B; font-size: 12px; }
+  .cc   { fill: #F1EFE8; stroke: #888780; stroke-width: 0.5; }
+  .ct   { fill: #2C2C2A; font-size: 13px; }
+  @media (prefers-color-scheme: dark) {
+    .bg   { fill: #1a1a19; }
+    .hd   { fill: #E8E6DE; }
+    .hds, .an { fill: #B4B2A9; }
+    .arr  { stroke: #9C9A92; }
+    .skip { stroke: #EF9F27; }
+    .tb   { fill: #085041; stroke: #5DCAA5; }
+    .tt   { fill: #E1F5EE; } .ts { fill: #9FE1CB; }
+    .pb   { fill: #3C3489; stroke: #AFA9EC; }
+    .pt   { fill: #EEEDFE; } .ps { fill: #CECBF6; }
+    .ab   { fill: #633806; stroke: #EF9F27; }
+    .at   { fill: #FAEEDA; } .as { fill: #FAC775; }
+    .cc   { fill: #2C2C2A; stroke: #B4B2A9; }
+    .ct   { fill: #E8E6DE; }
+  }
+</style>
+
+<defs>
+<marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+<path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+</defs>
+
+<rect class="bg" x="0" y="0" width="880" height="810"/>
+
+<text class="hd" x="48" y="40">LLaMA — Decoder-only Transformer</text>
+<text class="hds" x="48" y="62">Gesamtmodell</text>
+<text class="hds" x="330" y="62">Ein Transformer-Block im Detail</text>
+
+<rect class="tb" x="48" y="96" width="210" height="48" rx="8"/>
+<text class="tt" x="153" y="126" text-anchor="middle">Tokens</text>
+
+<rect class="tb" x="48" y="172" width="210" height="48" rx="8"/>
+<text class="tt" x="153" y="202" text-anchor="middle">Token-Embedding</text>
+
+<rect class="pb" x="48" y="248" width="210" height="72" rx="8"/>
+<text class="pt" x="153" y="278" text-anchor="middle">Transformer-Block</text>
+<text class="ps" x="153" y="300" text-anchor="middle">× N  (32 bis 80 Layer)</text>
+
+<rect class="tb" x="48" y="348" width="210" height="48" rx="8"/>
+<text class="tt" x="153" y="378" text-anchor="middle">RMSNorm (final)</text>
+
+<rect class="tb" x="48" y="424" width="210" height="48" rx="8"/>
+<text class="tt" x="153" y="454" text-anchor="middle">Linear → Vokabular</text>
+
+<rect class="tb" x="48" y="500" width="210" height="48" rx="8"/>
+<text class="tt" x="153" y="530" text-anchor="middle">Softmax</text>
+
+<line class="arr" x1="153" y1="146" x2="153" y2="168" marker-end="url(#a)"/>
+<line class="arr" x1="153" y1="222" x2="153" y2="244" marker-end="url(#a)"/>
+<line class="arr" x1="153" y1="322" x2="153" y2="344" marker-end="url(#a)"/>
+<line class="arr" x1="153" y1="398" x2="153" y2="420" marker-end="url(#a)"/>
+<line class="arr" x1="153" y1="474" x2="153" y2="496" marker-end="url(#a)"/>
+
+<path class="arr" d="M264 284 L296 284" stroke-dasharray="4 4" marker-end="url(#a)"/>
+
+<rect class="pb" x="330" y="96" width="280" height="46" rx="8"/>
+<text class="pt" x="470" y="125" text-anchor="middle">Eingabe x</text>
+
+<rect class="ab" x="330" y="162" width="280" height="46" rx="8"/>
+<text class="at" x="470" y="191" text-anchor="middle">RMSNorm</text>
+
+<rect class="pb" x="330" y="228" width="280" height="46" rx="8"/>
+<text class="pt" x="470" y="257" text-anchor="middle">Self-Attention (kausal, Multi-Head)</text>
+
+<rect class="pb" x="330" y="294" width="280" height="40" rx="8"/>
+<text class="pt" x="470" y="320" text-anchor="middle">⊕  Residual</text>
+
+<rect class="ab" x="330" y="354" width="280" height="46" rx="8"/>
+<text class="at" x="470" y="383" text-anchor="middle">RMSNorm</text>
+
+<rect class="ab" x="330" y="420" width="280" height="46" rx="8"/>
+<text class="at" x="470" y="449" text-anchor="middle">Feed-Forward mit SwiGLU</text>
+
+<rect class="pb" x="330" y="486" width="280" height="40" rx="8"/>
+<text class="pt" x="470" y="512" text-anchor="middle">⊕  Residual</text>
+
+<rect class="pb" x="330" y="546" width="280" height="46" rx="8"/>
+<text class="pt" x="470" y="575" text-anchor="middle">Ausgabe → nächster Block</text>
+
+<line class="arr" x1="470" y1="144" x2="470" y2="158" marker-end="url(#a)"/>
+<line class="arr" x1="470" y1="210" x2="470" y2="224" marker-end="url(#a)"/>
+<line class="arr" x1="470" y1="276" x2="470" y2="290" marker-end="url(#a)"/>
+<line class="arr" x1="470" y1="336" x2="470" y2="350" marker-end="url(#a)"/>
+<line class="arr" x1="470" y1="402" x2="470" y2="416" marker-end="url(#a)"/>
+<line class="arr" x1="470" y1="468" x2="470" y2="482" marker-end="url(#a)"/>
+<line class="arr" x1="470" y1="528" x2="470" y2="542" marker-end="url(#a)"/>
+
+<path class="skip" d="M330 119 L302 119 L302 314 L324 314" marker-end="url(#a)"/>
+<path class="skip" d="M330 330 L288 330 L288 506 L324 506" marker-end="url(#a)"/>
+
+<line class="arr" x1="614" y1="185" x2="632" y2="185" stroke-dasharray="3 3"/>
+<text class="an" x="638" y="182">Normalisierung VOR dem</text>
+<text class="an" x="638" y="198">Sublayer, nicht danach</text>
+
+<line class="arr" x1="614" y1="251" x2="632" y2="251" stroke-dasharray="3 3"/>
+<text class="an" x="638" y="248">RoPE rotiert Q und K —</text>
+<text class="an" x="638" y="264">in jedem Layer neu</text>
+
+<line class="arr" x1="614" y1="443" x2="632" y2="443" stroke-dasharray="3 3"/>
+<text class="an" x="638" y="440">versteckte Dimension</text>
+<text class="an" x="638" y="456">2/3 · 4d statt 4d</text>
+
+<text class="as" x="288" y="620" text-anchor="start">gestrichelt = Residual-Verbindungen</text>
+
+<rect class="cc" x="20" y="646" width="840" height="146" rx="16"/>
+<text class="hd" x="44" y="678">Drei Änderungen gegenüber dem Original-Transformer (2017)</text>
+
+<text class="ct" x="44" y="710">Post-Norm mit LayerNorm   →   Pre-Norm mit RMSNorm      · Stabilität, Idee von GPT-3</text>
+<text class="ct" x="44" y="738">ReLU im Feed-Forward   →   SwiGLU      · bessere Qualität, Idee von PaLM</text>
+<text class="ct" x="44" y="766">absolute Positions-Embeddings   →   RoPE in jedem Layer      · Idee von GPT-Neo</text>
+
+</svg>
